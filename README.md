@@ -30,20 +30,10 @@ A simple bug tracking system built with Django, Django REST Framework, Django Ch
 git clone https://github.com/shahoraiar/BugTracker.git
 cd BugTracker
 
-bugtracker/
-├── bugtracker/
-│   ├── asgi.py        # ASGI application setup for Channels
-│   ├── settings.py    # Django project settings
-│   ├── urls.py        # URL routing including API and pages
-│   └── wsgi.py
-├── tracker/
-│   ├── models.py      # Project and Bug models
-│   ├── views.py       # bug_list_view and API views
-│   ├── serializers.py # DRF serializers
-│   ├── consumers.py   # WebSocket consumer for live updates
-│   ├── routing.py     # WebSocket URL routing
-│   └── admin.py       # Model registrations
-├── requirements.txt
-└── manage.py
+2. Create and activate a virtual environment:
+python -m venv .venv
+# Windows
+.\.venv\Scripts\activate
 
-
+3. Install Python dependencies:
+pip install -r requirements.txt
