@@ -42,30 +42,39 @@ python -m venv .venv
 ```
 
 3. Install Python dependencies:
+```bash
 pip install -r requirements.txt
+```
 
 4. Install and start Redis server (version 5+):
 Start Redis server locally (default port 6379)
 
 5. Apply database migrations:
+```bash
 python manage.py migrate
+```
 
 6. Create a superuser (for admin access):
+```bash
 python manage.py createsuperuser
+```
 
 7. Collect static files (optional, for production):
+```bash
 python manage.py collectstatic
+```
 
-## 8. Running the Project
+8. Running the Project
 Run the ASGI server with WebSocket support using daphne or uvicorn:
 # Using daphne
+```bash
 daphne -p 8000 bugtracker.asgi:application
+```
 
+- Admin Panel: http://127.0.0.1:8000/admin/
+- Bug List Page: http://127.0.0.1:8000/bug-list/<project_id>/
 
-Admin Panel: http://127.0.0.1:8000/admin/
-Bug List Page: http://127.0.0.1:8000/bug-list/<project_id>/
-
-API Endpoints
+## API Endpoints
 | Endpoint              | Description                    | Method         | Auth Required |
 | --------------------- | ------------------------------ | -------------- | ------------- |
 | `/api/token/`         | Obtain JWT token               | POST           | No            |
@@ -75,16 +84,28 @@ API Endpoints
 | `/api/bugs/`          | List/Create Bugs               | GET/POST       | Yes           |
 | `/api/bugs/<id>/`     | Retrieve/Update/Delete Bug     | GET/PUT/DELETE | Yes           |
 
+---
+## Live Bug Updates Demo
+1. Open the bug list page for a project in your browser:
+   http://127.0.0.1:8000/bug-list/<project_id>/
+   (Replace `<project_id>` with an actual project ID from your database.)
 
-WebSocket Support
-* WebSocket URL pattern: ws://<host>/ws/project/<project_id>/
-* Clients connected to a project's WebSocket room receive real-time notifications when new bugs are created on that project.
+2. At the same time, use Postman to send a `POST` request to create a bug:
+  http://127.0.0.1:8000/api/bugs/
 
-Redis Version
+3. As soon as you send the request in Postman, the new bug will appear instantly in the browser page without refreshing — thanks to WebSocket real-time updates.
+
+## WebSocket Support
+- WebSocket URL pattern: ws://<host>/ws/project/<project_id>/
+- Clients connected to a project's WebSocket room receive real-time notifications when new bugs are created on that project.
+
+## Redis Version
 This project requires Redis version 5 or higher to support Django Channels' channel layer features correctly. Lower versions may cause errors such as unknown command 'BZPOPMIN'.
 
 
-Project Structure (key files)
+## Project Structure
+
+```text
 bugtracker/
 ├── bugtracker/
 │   ├── asgi.py        # ASGI application setup for Channels
@@ -100,6 +121,8 @@ bugtracker/
 │   └── admin.py       # Model registrations
 ├── requirements.txt
 └── manage.py
+```
+
 
 
 Author
