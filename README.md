@@ -29,13 +29,17 @@ A simple bug tracking system built with Django, Django REST Framework, Django Ch
 ```bash
 git clone https://github.com/shahoraiar/BugTracker.git
 cd BugTracker
+```
 
 2. Create and activate a virtual environment:
+ ```bash
 python -m venv .venv
+```
 
 # Windows
+```bash
 .\.venv\Scripts\activate
-
+```
 
 3. Install Python dependencies:
 pip install -r requirements.txt
@@ -52,7 +56,7 @@ python manage.py createsuperuser
 7. Collect static files (optional, for production):
 python manage.py collectstatic
 
-8. Running the Project
+## 8. Running the Project
 Run the ASGI server with WebSocket support using daphne or uvicorn:
 # Using daphne
 daphne -p 8000 bugtracker.asgi:application
