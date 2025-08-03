@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bug List - {{ project_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .badge-status-open { background-color: #f0ad4e; }
+        .badge-status-in-progress { background-color: #17a2b8; }
+        .badge-status-resolved { background-color: #28a745; }
+        .badge-priority-high { background-color: #dc3545; }
+        .badge-priority-medium { background-color: #ffc107; color: #212529; }
+        .badge-priority-low { background-color: #6c757d; }
+        .live-row { animation: highlight 2s ease; }
+        @keyframes highlight {
+            from { background-color: #e7f7ff; }
+            to { background-color: white; }
+        }
+    </style>
+</head>
+<body>
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="mb-0">Project: <strong>{{ project_name }}</strong></h3>
+            <small class="text-muted">ID: {{ project_id }}</small>
+        </div>
+        <div>
+            <span class="badge bg-primary">Live Bug Tracker</span>
+        </div>
+    </div>
+
+    <!-- Live Updates -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">Live Updates (new bugs)</h5>
+            <div class="text-muted small">Appears here immediately when a bug is created</div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="live-table" class="table table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Description</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="no-live">
+                            <td colspan="5" class="text-center text-muted py-3">Waiting for new bugs...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Previous Bugs -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">Previous Bugs</h5>
+            <div class="text-muted small">Existing bugs loaded from the database</div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="previous-table" class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Description</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if previous_bugs %}
+                            {% for bug in previous_bugs %}
+                                <tr>
+                                    <td>{{ bug.title }}</td>
+                                    <td>
+                                        {% if bug.status == "Open" %}
+                                            <span class="badge badge-status-open text-white">{{ bug.status }}</span>
+                                        {% elif bug.status == "In Progress" %}
+                                            <span class="badge badge-status-in-progress text-white">{{ bug.status }}</span>
+                                        {% else %}
+                                            <span class="badge badge-status-resolved text-white">{{ bug.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if bug.priority == "High" %}
+                                            <span class="badge badge-priority-high text-white">{{ bug.priority }}</span>
+                                        {% elif bug.priority == "Medium" %}
+                                            <span class="badge badge-priority-medium">{{ bug.priority }}</span>
+                                        {% else %}
+                                            <span class="badge badge-priority-low text-white">{{ bug.priority }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ bug.description }}</td>
+                                    <td><small class="text-muted">{{ bug.created_at }}</small></td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3">No bugs yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project ID injection -->
+<script>
+    const projectId = JSON.parse('{{ project_id|default:"0" }}');
+</script>
+
+<!-- WebSocket & dynamic insertion -->
+<script>
+    function makeBadgeStatus(status) {
+        if (status === "Open") return `<span class="badge badge-status-open text-white">${status}</span>`;
+        if (status === "In Progress") return `<span class="badge badge-status-in-progress text-white">${status}</span>`;
+        return `<span class="badge badge-status-resolved text-white">${status}</span>`;
+    }
+    function makeBadgePriority(priority) {
+        if (priority === "High") return `<span class="badge badge-priority-high text-white">${priority}</span>`;
+        if (priority === "Medium") return `<span class="badge badge-priority-medium">${priority}</span>`;
+        return `<span class="badge badge-priority-low text-white">${priority}</span>`;
+    }
+
+    const socket = new WebSocket(`ws://${window.location.host}/ws/project/${projectId}/`);
+    socket.onopen = () => console.log("WebSocket connected");
+    socket.onerror = (e) => console.error("WebSocket error", e);
+    socket.onclose = (e) => console.log("WebSocket closed", e);
+    socket.onmessage = function(e) {
+        const bug = JSON.parse(e.data);
+        const liveTbody = document.querySelector("#live-table tbody");
+
+        // Remove placeholder if it exists
+        const placeholder = document.getElementById("no-live");
+        if (placeholder) placeholder.remove();
+
+        const tr = document.createElement("tr");
+        tr.classList.add("live-row");
+        tr.innerHTML = `
+            <td>${bug.title}</td>
+            <td>${makeBadgeStatus(bug.status)}</td>
+            <td>${makeBadgePriority(bug.priority)}</td>
+            <td>${bug.description}</td>
+            <td><small class="text-muted">${new Date().toLocaleString()}</small></td>
+        `;
+        liveTbody.prepend(tr);
+    };
+</script>
+</body>
+</html>
