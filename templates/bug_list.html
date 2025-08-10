@@ -120,7 +120,6 @@
     const projectId = JSON.parse('{{ project_id|default:"0" }}');
 </script>
 
-<!-- WebSocket & dynamic insertion -->
 <script>
     function makeBadgeStatus(status) {
         if (status === "Open") return `<span class="badge badge-status-open text-white">${status}</span>`;
@@ -141,7 +140,6 @@
         const bug = JSON.parse(e.data);
         const liveTbody = document.querySelector("#live-table tbody");
 
-        // Remove placeholder if it exists
         const placeholder = document.getElementById("no-live");
         if (placeholder) placeholder.remove();
 

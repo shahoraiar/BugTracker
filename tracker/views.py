@@ -1,7 +1,6 @@
 from django.shortcuts import render
 
 # Create your views here.
-# tracker/views.py
 from rest_framework import viewsets, permissions
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Project, Bug
