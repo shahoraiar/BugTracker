@@ -59,16 +59,14 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-7. Collect static files (optional, for production):
+7. Collect static files (optional):
 ```bash
 python manage.py collectstatic
 ```
 
 8. Running the Project
-Run the ASGI server with WebSocket support using daphne or uvicorn:
-# Using daphne
 ```bash
-daphne -p 8000 bugtracker.asgi:application
+python manage.py runserver
 ```
 
 - Admin Panel: http://127.0.0.1:8000/admin/
